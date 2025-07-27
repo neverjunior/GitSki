@@ -1,0 +1,207 @@
+[
+  {
+    "name": "OpenAI API Key",
+    "pattern": "sk-[a-zA-Z0-9]{48}",
+    "description": "OpenAI API keys starting with sk-"
+  },
+  {
+    "name": "AWS Secret Access Key",
+    "pattern": "(?i)((\"|'|`)?aws_?secret_?access_?key_?id?(\"|'|`)?\\s{0,50}(:|=>|=)\\s{0,50}(\"|'|`)?[A-Za-z0-9/+=]{40}(\"|'|`)?)",
+    "description": "AWS Secret Access Key with variable names"
+  },
+  {
+    "name": "Artifactory",
+    "pattern": "(?i)artifactory.{0,50}(\"|'|`)?[a-zA-Z0-9=]{112}(\"|'|`)?",
+    "description": "Artifactory API keys"
+  },
+  {
+    "name": "CodeClimate",
+    "pattern": "(?i)codeclima.{0,50}(\"|'|`)?[0-9a-f]{64}(\"|'|`)?",
+    "description": "CodeClimate API keys"
+  },
+  {
+    "name": "Facebook Access Token",
+    "pattern": "EAACEdEose0cBA[0-9A-Za-z]+",
+    "description": "Facebook access tokens"
+  },
+  {
+    "name": "Google (GCM) Service Account",
+    "pattern": "((\"|'|`)?type(\"|'|`)?\\s{0,50}(:|=>|=)\\s{0,50}(\"|'|`)?service_account(\"|'|`)?,?)",
+    "description": "Google Cloud Messaging service account"
+  },
+  {
+    "name": "Stripe API Key",
+    "pattern": "(?:r|s)k_[live|test]_[0-9a-zA-Z]{24}",
+    "description": "Stripe API keys (live and test)"
+  },
+  {
+    "name": "Google OAuth Key",
+    "pattern": "[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com",
+    "description": "Google OAuth client IDs"
+  },
+  {
+    "name": "Google Cloud API Key",
+    "pattern": "AIza[0-9A-Za-z\\-_]{35}",
+    "description": "Google Cloud API keys"
+  },
+  {
+    "name": "Google OAuth Access Token",
+    "pattern": "ya29\\.[0-9A-Za-z\\-_]+",
+    "description": "Google OAuth access tokens"
+  },
+  {
+    "name": "Picatic API Key",
+    "pattern": "sk_[live|test]_[0-9a-z]{32}",
+    "description": "Picatic API keys"
+  },
+  {
+    "name": "Square Access Token",
+    "pattern": "sq0atp-[0-9A-Za-z\\-_]{22}",
+    "description": "Square access tokens"
+  },
+  {
+    "name": "Square OAuth Secret",
+    "pattern": "sq0csp-[0-9A-Za-z\\-_]{43}",
+    "description": "Square OAuth secrets"
+  },
+  {
+    "name": "PayPal/Braintree Access Token",
+    "pattern": "access_token\\$production\\$[0-9a-z]{16}\\$[0-9a-f]{32}",
+    "description": "PayPal/Braintree production access tokens"
+  },
+  {
+    "name": "Amazon MWS Auth Token",
+    "pattern": "amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    "description": "Amazon Marketplace Web Service auth tokens"
+  },
+  {
+    "name": "Twilio API Key",
+    "pattern": "SK[0-9a-fA-F]{32}",
+    "description": "Twilio API keys"
+  },
+  {
+    "name": "SendGrid API Key",
+    "pattern": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}",
+    "description": "SendGrid API keys"
+  },
+  {
+    "name": "MailGun API Key",
+    "pattern": "key-[0-9a-zA-Z]{32}",
+    "description": "MailGun API keys"
+  },
+  {
+    "name": "MailChimp API Key",
+    "pattern": "[0-9a-f]{32}-us[0-9]{12}",
+    "description": "MailChimp API keys"
+  },
+  {
+    "name": "SSH Password",
+    "pattern": "sshpass -p.*['|\"]",
+    "description": "SSH passwords in command line"
+  },
+  {
+    "name": "Outlook Team Webhook",
+    "pattern": "(https\\://outlook\\.office.com/webhook/[0-9a-f-]{36}\\@)",
+    "description": "Outlook team webhook URLs"
+  },
+  {
+    "name": "Sauce Token",
+    "pattern": "(?i)sauce.{0,50}(\"|'|`)?[0-9a-f-]{36}(\"|'|`)?",
+    "description": "Sauce Labs tokens"
+  },
+  {
+    "name": "Slack Token",
+    "pattern": "(xox[pboa]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})",
+    "description": "Slack API tokens"
+  },
+  {
+    "name": "Slack Webhook",
+    "pattern": "https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}",
+    "description": "Slack webhook URLs"
+  },
+  {
+    "name": "SonarQube API Key",
+    "pattern": "(?i)sonar.{0,50}(\"|'|`)?[0-9a-f]{40}(\"|'|`)?",
+    "description": "SonarQube API keys"
+  },
+  {
+    "name": "HockeyApp",
+    "pattern": "(?i)hockey.{0,50}(\"|'|`)?[0-9a-f]{32}(\"|'|`)?",
+    "description": "HockeyApp tokens"
+  },
+  {
+    "name": "Username and Password in URI",
+    "pattern": "([\\w+]{1,24})(://)([^$<]{1})([^\\s\";]{1,}):([^$<]{1})([^\\s\";/]{1,})@[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,24}([^\\s]+)",
+    "description": "Credentials embedded in URLs"
+  },
+  {
+    "name": "NuGet API Key",
+    "pattern": "oy2[a-z0-9]{43}",
+    "description": "NuGet API keys"
+  },
+  {
+    "name": "StackHawk API Key",
+    "pattern": "hawk\\.[0-9A-Za-z\\-_]{20}\\.[0-9A-Za-z\\-_]{20}",
+    "description": "StackHawk API keys"
+  },
+  {
+    "name": "Private Key",
+    "pattern": "-----BEGIN (EC|RSA|DSA|OPENSSH|PGP) PRIVATE KEY",
+    "description": "Private key files (EC, RSA, DSA, OpenSSH, PGP)"
+  },
+  {
+    "name": "WordPress Config",
+    "pattern": "define(.{0,20})?(DB_CHARSET|NONCE_SALT|LOGGED_IN_SALT|AUTH_SALT|NONCE_KEY|DB_HOST|DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|DB_NAME|DB_USER)(.{0,20})?['|\"].{10,120}['|\"]",
+    "description": "WordPress configuration secrets"
+  },
+  {
+    "name": "Facebook Secret Key",
+    "pattern": "(?i)(facebook|fb)(.{0,20})?['\"][0-9a-f]{32}['\"]",
+    "description": "Facebook secret keys"
+  },
+  {
+    "name": "Twitter Secret Key",
+    "pattern": "(?i)twitter(.{0,20})?['\"][0-9a-z]{35,44}['\"]",
+    "description": "Twitter secret keys"
+  },
+  {
+    "name": "Twitter Client ID",
+    "pattern": "(?i)twitter(.{0,20})?['\"][0-9a-z]{18,25}['\"]",
+    "description": "Twitter client IDs"
+  },
+  {
+    "name": "GitHub Key",
+    "pattern": "(?i)github(.{0,20})?['\"][0-9a-zA-Z]{35,40}['\"]",
+    "description": "GitHub API keys and tokens"
+  },
+  {
+    "name": "Heroku API Key",
+    "pattern": "(?i)heroku(.{0,20})?['\"][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}['\"]",
+    "description": "Heroku API keys"
+  },
+  {
+    "name": "LinkedIn Client ID",
+    "pattern": "(?i)linkedin(.{0,20})?['\"][0-9a-z]{12}['\"]",
+    "description": "LinkedIn client IDs"
+  },
+  {
+    "name": "LinkedIn Secret Key",
+    "pattern": "(?i)linkedin(.{0,20})?['\"][0-9a-z]{16}['\"]",
+    "description": "LinkedIn secret keys"
+  },
+  {
+    "name": "GitHub Token",
+    "pattern": "ghp_[a-zA-Z0-9]{36}",
+    "description": "GitHub personal access tokens"
+  },
+  {
+    "name": "Firebase API Key",
+    "pattern": "AIza[0-9A-Za-z\\-_]{35}",
+    "description": "Firebase API keys"
+  },
+  {
+    "name": "Stripe Publishable Key",
+    "pattern": "pk_live_[0-9a-zA-Z]{24}",
+    "description": "Stripe live publishable keys"
+  }
+] 

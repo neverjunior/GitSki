@@ -155,9 +155,8 @@ playwright install chromium
 ```
 
 4. **Configure GitHub credentials**
-```bash
-cp config_github.json.example config_github.json
-# Edit config_github.json with your GitHub credentials
+```
+ Edit config_github.json with your GitHub credentials
 ```
 
 ### 🎯 Basic Usage
@@ -176,7 +175,7 @@ python gitski.py --verbose
 python gitski.py --output my_results.json
 
 # Custom number of pages per query
-python gitski.py --max-pages 10
+python gitski.py --max-pages 2(default/max 5)
 
 # Combined options
 python gitski.py --headless --verbose --output results.json

@@ -9,7 +9,7 @@ import json
 CONFIG_FILE = 'config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
-KEYS_FILE = 'keys.txt'
+KEYS_FILE = 'keys.json'
 MAX_PAGES = 5 
 
 BANNER = """

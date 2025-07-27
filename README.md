@@ -1,60 +1,62 @@
-# 🔍 GitSki - GitHub Secret Scanner
-
-<div align="center">
-
-```
- ██████╗ ██╗████████╗███████╗██╗  ██╗██╗
-██╔════╝ ██║╚══██╔══╝██╔════╝██║ ██╔╝██║
-██║  ███╗██║   ██║   ███████╗█████╔╝ ██║
-██║   ██║██║   ██║   ╚════██║██╔═██╗ ██║
-╚██████╔╝██║   ██║   ███████║██║  ██╗██║
- ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝
-
-╔══════════════════════════════════════════════════════════════╗
-║                    GitHub Secret Scanner                     ║
-║                    Find Exposed API Keys                     ║
-║                                                              ║
-║                    - by Abhijeet                             ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-```
+# 🔍 GitSki - Secret Hunter
 
 **Getting Rate Limited.. Sorry! what's that?**
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║  ██████╗ ██╗████████╗███████╗██╗  ██╗██╗    ╔═══════════════════════════╗   ║
+║ ██╔════╝ ██║╚══██╔══╝██╔════╝██║ ██╔╝██║    ║     🔍 SECRET HUNTER 🔍    ║   ║
+║ ██║  ███╗██║   ██║   ███████╗█████╔╝ ██║    ║   GitHub Secret Scanner   ║   ║
+║ ██║   ██║██║   ██║   ╚════██║██╔═██╗ ██║    ║                           ║   ║
+║ ╚██████╔╝██║   ██║   ███████║██║  ██╗██║    ║      - by Abhijeet -       ║   ║
+║  ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝    ╚═══════════════════════════╝   ║
+║                                                                              ║
+║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 [![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://python.org)
 [![Playwright](https://img.shields.io/badge/Playwright-Latest-green.svg)](https://playwright.dev)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/yourusername/gitski?style=social)](https://github.com/yourusername/gitski)
+[![Stars](https://img.shields.io/github/stars/neverjunior/gitski?style=social)](https://github.com/neverjunior/gitski)
 
-*A powerful tool to scan GitHub repositories for exposed API keys, secrets, and credentials*
-
-</div>
+*A powerful secret hunting tool to scan GitHub repositories for exposed API keys, secrets, and credentials with advanced targeting capabilities*
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-### 🔐 **Comprehensive Secret Detection**
-- **40+ regex patterns** for detecting various types of secrets
-- **Cloud Services**: AWS, Google Cloud, Azure, Firebase
-- **Payment APIs**: Stripe, PayPal, Square, Braintree
-- **Social Media**: Facebook, Twitter, LinkedIn, GitHub
-- **DevOps Tools**: Slack, Heroku, SendGrid, Twilio
-- **Security**: Private keys, SSH credentials, OAuth tokens
+### 🎯 **Advanced Targeting**
+- **Repository-specific scanning** - Target specific repos, organizations, or users
+- **String-based filtering** - Search for specific domains, companies, or keywords
+- **Language filtering** - Focus on specific programming languages
+- **Metadata filtering** - Filter by stars, forks, size, and dates
 
-### 🎯 **Advanced Scanning Capabilities**
-- **File-level scanning** - Visits individual files to find hidden secrets
-- **Batch processing** - Efficient handling of large repositories
-- **Rate limiting** - Respects GitHub's API limits with exponential backoff
-- **Deduplication** - Prevents duplicate entries from same files
-- **Real-time results** - Saves findings as they're discovered
+### 🔍 **Intelligent Detection**
+- **40+ secret patterns** - Comprehensive regex patterns for various API keys
+- **Real-time extraction** - Immediate key discovery and saving
+- **Deduplication** - Smart duplicate detection and removal
+- **File link following** - Deep scanning of individual files
 
-### ⚙️ **Flexible Configuration**
-- **Custom regex patterns** - Add your own detection rules
-- **Browser control** - Headless or visible mode
-- **Verbose output** - Detailed or minimal logging
-- **Custom output** - JSON format with structured data
-- **Configurable limits** - Adjust search depth and batch sizes
+### 🚀 **Performance & Reliability**
+- **Rate limit handling** - Intelligent backoff and retry mechanisms
+- **Batch processing** - Efficient file processing in batches
+- **Headless mode** - Fast scanning without GUI
+- **Cookie persistence** - Automated login with session management
+
+### 🎨 **User Experience**
+- **Cool ASCII art** - Beautiful terminal interface
+- **Progress tracking** - Real-time progress bars and status updates
+- **Verbose logging** - Detailed output for debugging
+- **JSON output** - Structured results with metadata
+
+### 🔧 **Flexibility**
+- **Custom regex patterns** - Load patterns from JSON configuration
+- **Multiple output formats** - Customizable output filenames
+- **Configurable limits** - Adjustable page limits and batch sizes
+- **Cross-platform** - Works on Windows, macOS, and Linux
 
 ### 📊 **Rich Output Format**
 ```json
@@ -78,37 +80,145 @@
 
 ---
 
-## 🛠️ Installation
+## 🎬 Demo
 
-### Prerequisites
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║  ██████╗ ██╗████████╗███████╗██╗  ██╗██╗    ╔═══════════════════════════╗   ║
+║ ██╔════╝ ██║╚══██╔══╝██╔════╝██║ ██╔╝██║    ║     🔍 SECRET HUNTER 🔍    ║   ║
+║ ██║  ███╗██║   ██║   ███████╗█████╔╝ ██║    ║   GitHub Secret Scanner   ║   ║
+║ ██║   ██║██║   ██║   ╚════██║██╔═██╗ ██║    ║                           ║   ║
+║ ╚██████╔╝██║   ██║   ███████║██║  ██╗██║    ║      - by Abhijeet -       ║   ║
+║  ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝    ╚═══════════════════════════╝   ║
+║                                                                              ║
+║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🎯 Initializing GitSki Secret Scanner...
+⚡ Loading advanced detection patterns...
+🔍 Preparing GitHub search engine...
+======================================================================
+🚀 Ready to hunt for secrets! Let's go! 🚀
+======================================================================
+🎯 Loaded 40 regex patterns from regex_patterns.json
+✅ Compiled pattern: OpenAI API Key
+✅ Compiled pattern: AWS Access Key ID
+✅ Compiled pattern: AWS Secret Access Key
+...
+🎯 Generated 520 search queries
+🌐 Launching browser...
+🔐 Attempting automated GitHub login...
+✅ Login successful!
+🚀 Starting secret hunt...
+🔍 Query 1/520: (path:*.json) AND (api_key) AND (/sk-[a-zA-Z0-9]{48}/)
+📄 Fetching page 1: https://github.com/search?q=...
+🎯 Extracted 15 file URLs from search results
+📦 Processing batch 1/1 (15 files)
+🔍 File 1/15: https://github.com/...
+🎯 Found 3 new keys in file
+💾 Results saved to: keys.json
+...
+🎉 Scan complete! Found 127 total keys across 8 pattern types.
+📊 Summary by pattern type:
+  🔑 OpenAI API Key: 45 keys
+  🔑 AWS Access Key ID: 23 keys
+  🔑 GitHub Personal Access Token: 18 keys
+  ...
+💾 Results saved to: keys.json
+🎯 Secret hunting session completed! 🎯
+```
+
+## 🚀 Quick Start
+
+### 📋 Prerequisites
 - Python 3.7 or higher
 - Git
 - GitHub account (for authentication)
 
-### Quick Start
+### ⚡ Installation
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/gitski.git
+git clone https://github.com/neverjunior/gitski.git
 cd gitski
 ```
 
 2. **Install dependencies**
 ```bash
-pip install playwright
-playwright install
+pip install -r requirements.txt
 ```
 
-3. **Configure credentials**
+3. **Install Playwright browsers**
 ```bash
-# Create config file with your GitHub credentials
+playwright install chromium
+```
+
+4. **Configure GitHub credentials**
+```bash
 cp config_github.json.example config_github.json
-# Edit config_github.json with your GitHub username and password
+# Edit config_github.json with your GitHub credentials
 ```
 
-4. **Run GitSki**
+### 🎯 Basic Usage
+
 ```bash
+# Basic scan (visible browser, minimal output)
 python gitski.py
+
+# Headless mode (no GUI, faster)
+python gitski.py --headless
+
+# Verbose output (detailed logging)
+python gitski.py --verbose
+
+# Custom output file
+python gitski.py --output my_results.json
+
+# Custom number of pages per query
+python gitski.py --max-pages 10
+
+# Combined options
+python gitski.py --headless --verbose --output results.json
+```
+
+### 🎯 Advanced Targeting
+
+```bash
+# Search in specific repository
+python gitski.py --repo "microsoft/vscode"
+
+# Search in specific organization
+python gitski.py --org "microsoft"
+
+# Search in specific user's repositories
+python gitski.py --user "neverjunior"
+
+# Search for specific string/domain
+python gitski.py --string "example.com"
+
+# Search in specific programming language
+python gitski.py --language "python"
+
+# Filter by repository size
+python gitski.py --size ">1000"
+
+# Filter by stars
+python gitski.py --stars ">100"
+
+# Filter by forks
+python gitski.py --forks ">10"
+
+# Filter by creation date
+python gitski.py --created ">2023-01-01"
+
+# Filter by last push date
+python gitski.py --pushed ">2024-01-01"
+
+# Combined filters
+python gitski.py --repo "microsoft/vscode" --string "api_key" --verbose
+python gitski.py --org "google" --language "javascript" --stars ">1000"
 ```
 
 ---
@@ -137,6 +247,44 @@ python gitski.py --max-pages 10
 python gitski.py --headless --verbose --output results.json
 ```
 
+### Advanced Search Filters
+
+```bash
+# Search in specific repository
+python gitski.py --repo "microsoft/vscode"
+
+# Search in specific organization
+python gitski.py --org "microsoft"
+
+# Search in specific user's repositories
+python gitski.py --user "neverjunior"
+
+# Search for specific string/domain
+python gitski.py --string "example.com"
+
+# Search in specific programming language
+python gitski.py --language "python"
+
+# Filter by repository size
+python gitski.py --size ">1000"
+
+# Filter by stars
+python gitski.py --stars ">100"
+
+# Filter by forks
+python gitski.py --forks ">10"
+
+# Filter by creation date
+python gitski.py --created ">2023-01-01"
+
+# Filter by last push date
+python gitski.py --pushed ">2024-01-01"
+
+# Combined filters
+python gitski.py --repo "microsoft/vscode" --string "api_key" --verbose
+python gitski.py --org "google" --language "javascript" --stars ">1000"
+```
+
 ### Command Line Options
 
 | Option | Description | Default |
@@ -145,6 +293,16 @@ python gitski.py --headless --verbose --output results.json
 | `--verbose`, `-v` | Enable detailed output | `False` |
 | `--output`, `-o` | Custom output filename | `keys.json` |
 | `--max-pages` | Max pages per search query | `5` |
+| `--repo` | Search in specific repository (owner/repo) | `None` |
+| `--org` | Search in specific organization | `None` |
+| `--user` | Search in specific user's repositories | `None` |
+| `--string` | Search for specific string/domain | `None` |
+| `--language` | Filter by programming language | `None` |
+| `--size` | Filter by repository size (e.g., >1000) | `None` |
+| `--stars` | Filter by stars (e.g., >100) | `None` |
+| `--forks` | Filter by forks (e.g., >10) | `None` |
+| `--created` | Filter by creation date (e.g., >2023-01-01) | `None` |
+| `--pushed` | Filter by last push date (e.g., >2024-01-01) | `None` |
 
 ### Configuration Files
 
@@ -191,6 +349,41 @@ GitSki automatically generates search queries based on:
 - **File extensions**: `.json`, `.env`, `.config`, `.yml`, etc.
 - **Keywords**: `api_key`, `secret`, `token`, `password`, etc.
 - **Pattern matching**: Specific regex patterns for each secret type
+
+### GitHub Search Filters
+
+GitSki supports all GitHub search filters for precise targeting:
+
+#### **Repository & Organization Filters**
+- `--repo "owner/repo"` - Search in specific repository
+- `--org "organization"` - Search in organization repositories
+- `--user "username"` - Search in user's repositories
+
+#### **Content Filters**
+- `--string "text"` - Search for specific text/domain/company
+- `--language "python"` - Filter by programming language
+
+#### **Repository Metadata Filters**
+- `--size ">1000"` - Filter by repository size
+- `--stars ">100"` - Filter by star count
+- `--forks ">10"` - Filter by fork count
+- `--created ">2023-01-01"` - Filter by creation date
+- `--pushed ">2024-01-01"` - Filter by last push date
+
+#### **Usage Examples**
+```bash
+# Target specific company repositories
+python gitski.py --org "microsoft" --string "api_key"
+
+# Search in popular repositories
+python gitski.py --stars ">1000" --language "javascript"
+
+# Focus on recent activity
+python gitski.py --pushed ">2024-01-01" --string "password"
+
+# Target specific domain
+python gitski.py --string "example.com" --verbose
+```
 
 ---
 
@@ -255,48 +448,21 @@ GitSki is designed for **ethical security research** and **responsible disclosur
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help:
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### 🐛 **Report Issues**
-- Use the [GitHub Issues](https://github.com/yourusername/gitski/issues) page
+- Use the [GitHub Issues](https://github.com/neverjunior/gitski/issues) page
 - Provide detailed bug reports with steps to reproduce
 - Include error messages and system information
 
 ### 💡 **Feature Requests**
-- Suggest new regex patterns
-- Propose UI/UX improvements
-- Request new detection capabilities
-
-### 🔧 **Code Contributions**
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### 📝 **Adding New Patterns**
-1. Add your regex pattern to `regex_patterns.json`
-2. Test thoroughly with sample data
-3. Update documentation if needed
-4. Submit a pull request
-
----
-
+- Suggest new features via GitHub Issues
+- Discuss improvements in Discussions
+- Submit pull requests for enhancements
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **GitHub** for providing the platform
-- **Playwright** for browser automation
-- **Open source community** for regex patterns
-- **Security researchers** for responsible disclosure practices
-
----
 
 ## ⭐ Star History
 
@@ -306,8 +472,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made by Abhijeet with ❤️ for the security community**
+### 🔍 **GitSki - Secret Hunter**
 
-[![Twitter](https://img.shields.io/badge/Twitter-Follow-blue?style=social&logo=twitter)](https://x.com/neverjuniorr)
+**Made with ❤️ by [Abhijeet](https://x.com/neverjuniorr)**
+
+[![Twitter](https://img.shields.io/badge/Twitter-@neverjuniorr-blue?style=flat&logo=twitter)](https://x.com/neverjuniorr)
+[![GitHub](https://img.shields.io/badge/GitHub-neverjunior-black?style=flat&logo=github)](https://github.com/neverjunior)
+
+*Happy secret hunting! 🎯*
 
 </div> 

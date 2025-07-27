@@ -19,7 +19,7 @@
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-**Getting Rate Limited.. Sorry what's that?**
+**Getting Rate Limited.. Sorry! what's that?**
 
 [![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://python.org)
 [![Playwright](https://img.shields.io/badge/Playwright-Latest-green.svg)](https://playwright.dev)

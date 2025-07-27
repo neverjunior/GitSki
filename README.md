@@ -47,8 +47,6 @@
 - **Cookie persistence** - Automated login with session management
 
 ### 🎨 **User Experience**
-- **Cool ASCII art** - Beautiful terminal interface
-- **Progress tracking** - Real-time progress bars and status updates
 - **Verbose logging** - Detailed output for debugging
 - **JSON output** - Structured results with metadata
 

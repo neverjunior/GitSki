@@ -9,7 +9,7 @@ import json
 CONFIG_FILE = 'config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
-KEYS_FILE = 'keys.txt'
+KEYS_FILE = 'keys.json'
 MAX_PAGES = 5 
 
 BANNER = """
@@ -22,7 +22,7 @@ BANNER = """
 ║ ╚██████╔╝██║   ██║   ███████║██║  ██╗██║    ║      - by Abhijeet        ║    ║
 ║  ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝    ╚═══════════════════════════╝    ║
 ║                                                                              ║
-║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║ 
+║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
@@ -84,13 +84,13 @@ def load_regex_patterns():
         try:
             with open(REGEX_CONFIG_FILE, 'r') as f:
                 patterns = json.load(f)
-            print_status(f"🎯 Loaded {len(patterns)} regex patterns from {REGEX_CONFIG_FILE}", "FOUND")
+            print_status(f"Loaded {len(patterns)} regex patterns from {REGEX_CONFIG_FILE}", "FOUND")
             return patterns
         except Exception as e:
-            print_status(f"⚠️ Error loading regex patterns: {e}. Using defaults.", "WARNING")
+            print_status(f"Error loading regex patterns: {e}. Using defaults.", "WARNING")
             return DEFAULT_REGEX_PATTERNS
     else:
-        print_status(f"ℹ️ Regex config file {REGEX_CONFIG_FILE} not found. Using defaults.", "INFO")
+        print_status(f"Regex config file {REGEX_CONFIG_FILE} not found. Using defaults.", "INFO")
         return DEFAULT_REGEX_PATTERNS
 
 def compile_regex_patterns(patterns):
@@ -103,12 +103,12 @@ def compile_regex_patterns(patterns):
                 "pattern": compiled_pattern,
                 "description": pattern_data.get("description", "")
             })
-            print_status(f"✅ Compiled pattern: {pattern_data['name']}", "SUCCESS")
+            print_status(f"Compiled pattern: {pattern_data['name']}", "SUCCESS")
         except Exception as e:
-            print_status(f"❌ Error compiling pattern '{pattern_data['name']}': {e}", "ERROR")
+            print_status(f"Error compiling pattern '{pattern_data['name']}': {e}", "ERROR")
     return compiled_patterns
 
-def generate_queries(args):
+def generate_queries(args, compiled_patterns):
     queries = []
     
     base_filters = []
@@ -138,11 +138,15 @@ def generate_queries(args):
     
     for ext in EXTENSIONS:
         for kw in KEYWORDS:
-            if base_filter_string:
-                q = f'{base_filter_string} (path:*.{ext}) AND ({kw}) AND (/sk-[a-zA-Z0-9]{{48}}/)'
-            else:
-                q = f'(path:*.{ext}) AND ({kw}) AND (/sk-[a-zA-Z0-9]{{48}}/)'
-            queries.append(q)
+            for pattern_info in compiled_patterns:
+                pattern_name = pattern_info["name"]
+                pattern_regex = pattern_info["pattern"].pattern
+                
+                if base_filter_string:
+                    q = f'{base_filter_string} (path:*.{ext}) AND ({kw}) AND (/{pattern_regex}/)'
+                else:
+                    q = f'(path:*.{ext}) AND ({kw}) AND (/{pattern_regex}/)'
+                queries.append(q)
     
     return queries
 
@@ -209,13 +213,13 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
     for attempt in range(max_retries):
         try:
             if verbose:
-                print_status(f"🔍 Visiting file: {file_url}", "SCANNING")
+                print_status(f"Visiting file: {file_url}", "SCANNING")
             page.goto(file_url, timeout=30000)
             
             if "rate limit" in page.content().lower():
                 wait_time = (2 ** attempt) * 5
                 if verbose:
-                    print_status(f"⏳ Rate limited, waiting {wait_time} seconds...", "WAITING")
+                    print_status(f"Rate limited, waiting {wait_time} seconds...", "WAITING")
                 time.sleep(wait_time)
                 continue
             
@@ -223,10 +227,13 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
             keys = extract_keys_from_code(file_content, compiled_patterns, file_url, verbose)
             
             new_keys_count = 0
+            new_keys_summary = []
+            
             for pattern_name, key_list in keys.items():
                 if pattern_name not in all_keys:
                     all_keys[pattern_name] = []
                 
+                pattern_new_count = 0
                 for key_data in key_list:
                     is_duplicate = False
                     for existing_key in all_keys[pattern_name]:
@@ -238,33 +245,38 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
                     if not is_duplicate:
                         all_keys[pattern_name].append(key_data)
                         new_keys_count += 1
+                        pattern_new_count += 1
+                
+                if pattern_new_count > 0:
+                    new_keys_summary.append(f"{pattern_new_count} {pattern_name}")
             
             if new_keys_count > 0:
-                print_status(f"🎯 Found {new_keys_count} new keys in file", "FOUND")
+                summary_text = ", ".join(new_keys_summary)
+                print_status(f"Found {new_keys_count} new keys in file: {summary_text}", "FOUND")
                 save_results_to_json(all_keys, KEYS_FILE)
             else:
                 if verbose:
-                    print_status(f"⚠️ No new keys found in file", "WARNING")
+                    print_status(f"No new keys found in file", "WARNING")
             
             return True
             
         except Exception as e:
             if verbose:
-                print_status(f"❌ Error visiting file (attempt {attempt + 1}/{max_retries}): {e}", "ERROR")
+                print_status(f"Error visiting file (attempt {attempt + 1}/{max_retries}): {e}", "ERROR")
             if attempt < max_retries - 1:
                 wait_time = (2 ** attempt) * 3
                 if verbose:
-                    print_status(f"⏳ Retrying in {wait_time} seconds...", "WAITING")
+                    print_status(f"Retrying in {wait_time} seconds...", "WAITING")
                 time.sleep(wait_time)
     
     if verbose:
-        print_status(f"❌ Failed to visit file after {max_retries} attempts", "ERROR")
+        print_status(f"Failed to visit file after {max_retries} attempts", "ERROR")
     return False
 
 def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbose=False, batch_size=20):
     total_files = len(file_urls)
     if verbose:
-        print_status(f"🎯 Found {total_files} files to process", "FOUND")
+        print_status(f"Found {total_files} files to process", "FOUND")
     
     for i in range(0, total_files, batch_size):
         batch = file_urls[i:i + batch_size]
@@ -272,11 +284,11 @@ def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbo
         total_batches = (total_files + batch_size - 1) // batch_size
         
         if verbose:
-            print_status(f"📦 Processing batch {batch_num}/{total_batches} ({len(batch)} files)", "SCANNING")
+            print_status(f"Processing batch {batch_num}/{total_batches} ({len(batch)} files)", "SCANNING")
         
         for j, file_url in enumerate(batch):
             if verbose:
-                print_status(f"🔍 File {i + j + 1}/{total_files}", "SCANNING")
+                print_status(f"File {i + j + 1}/{total_files}", "SCANNING")
             else:
                 print_progress(i + j + 1, total_files, "Files")
             visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, verbose)
@@ -287,7 +299,7 @@ def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbo
         
         if i + batch_size < total_files:
             if verbose:
-                print_status(f"⏳ Batch {batch_num} complete. Taking a 10-second break...", "WAITING")
+                print_status(f"Batch {batch_num} complete. Taking a 10-second break...", "WAITING")
             time.sleep(10)
 
 def extract_keys_from_code(code, compiled_patterns, file_url="", verbose=False):
@@ -308,7 +320,7 @@ def extract_keys_from_code(code, compiled_patterns, file_url="", verbose=False):
                 all_keys[pattern_name].append(key_data)
                 
             if verbose:
-                print_status(f"Found {len(keys)} {pattern_name}: {keys}", "KEY")
+                print_status(f"Found {len(keys)} {pattern_name}: {keys[:3]}{'...' if len(keys) > 3 else ''}", "KEY")
     return all_keys
 
 def extract_keys_from_json(json_str, compiled_patterns, file_url="", verbose=False):
@@ -333,7 +345,7 @@ def extract_keys_from_json(json_str, compiled_patterns, file_url="", verbose=Fal
                     keys[pattern_name].append(key_data)
                 
                 if verbose:
-                    print_status(f"Found {len(found_keys)} {pattern_name} in JSON string", "KEY")
+                    print_status(f"Found {len(found_keys)} {pattern_name} in JSON string: {found_keys[:3]}{'...' if len(found_keys) > 3 else ''}", "KEY")
     return keys
 
 def extract_keys_from_object(obj, compiled_patterns, file_url="", verbose=False):
@@ -358,7 +370,7 @@ def extract_keys_from_object(obj, compiled_patterns, file_url="", verbose=False)
                             keys[pattern_name].append(key_data)
                         
                         if verbose:
-                            print_status(f"Found {len(found_keys)} {pattern_name} in key: {key}", "KEY")
+                            print_status(f"Found {len(found_keys)} {pattern_name} in key: {found_keys[:3]}{'...' if len(found_keys) > 3 else ''}", "KEY")
             nested_keys = extract_keys_from_object(value, compiled_patterns, file_url, verbose)
             for pattern_name, key_list in nested_keys.items():
                 if pattern_name not in keys:
@@ -388,7 +400,7 @@ def extract_keys_from_object(obj, compiled_patterns, file_url="", verbose=False)
                     keys[pattern_name].append(key_data)
                 
                 if verbose:
-                    print_status(f"Found {len(found_keys)} {pattern_name} in string", "KEY")
+                    print_status(f"Found {len(found_keys)} {pattern_name} in string: {found_keys[:3]}{'...' if len(found_keys) > 3 else ''}", "KEY")
     
     return keys
 
@@ -436,38 +448,38 @@ def main():
     KEYS_FILE = args.output
     
     print_banner()
-    print_status(f"📁 Writing results to: {os.path.abspath(KEYS_FILE)}", "INFO")
-    print_status(f"🌐 Browser mode: {'Headless' if args.headless else 'Visible'}", "BROWSER")
-    print_status(f"🔍 Verbose mode: {'Enabled' if args.verbose else 'Disabled'}", "INFO")
-    print_status(f"📄 Max pages per query: {MAX_PAGES}", "INFO")
+    print_status(f"Writing results to: {os.path.abspath(KEYS_FILE)}", "INFO")
+    print_status(f"Browser mode: {'Headless' if args.headless else 'Visible'}", "BROWSER")
+    print_status(f"Verbose mode: {'Enabled' if args.verbose else 'Disabled'}", "INFO")
+    print_status(f"Max pages per query: {MAX_PAGES}", "INFO")
     
     if args.repo:
-        print_status(f"🎯 Repository target: {args.repo}", "FOUND")
+        print_status(f"Repository target: {args.repo}", "FOUND")
     if args.org:
-        print_status(f"🏢 Organization target: {args.org}", "FOUND")
+        print_status(f"Organization target: {args.org}", "FOUND")
     if args.user:
-        print_status(f"👤 User target: {args.user}", "FOUND")
+        print_status(f"User target: {args.user}", "FOUND")
     if args.string:
-        print_status(f"🔍 String target: {args.string}", "SCANNING")
+        print_status(f"String target: {args.string}", "SCANNING")
     if args.language:
-        print_status(f"💻 Language filter: {args.language}", "INFO")
+        print_status(f"Language filter: {args.language}", "INFO")
     
     patterns = load_regex_patterns()
     compiled_patterns = compile_regex_patterns(patterns)
     
     all_keys = {}
-    queries = generate_queries(args)
+    queries = generate_queries(args, compiled_patterns)
     total_queries = len(queries)
-    print_status(f"🎯 Generated {total_queries} search queries", "INFO")
+    print_status(f"Generated {total_queries} search queries", "INFO")
     
     with sync_playwright() as p:
-        print_status("🌐 Launching browser...", "BROWSER")
+        print_status("Launching browser...", "BROWSER")
         browser = p.chromium.launch(headless=args.headless)
         context = browser.new_context()
         cookies_loaded = load_cookies(context)
         page = context.new_page()
         if not cookies_loaded:
-            print_status("🔐 Attempting automated GitHub login...", "LOGIN")
+            print_status("Attempting automated GitHub login...", "LOGIN")
             username, password = get_github_credentials()
             page.goto('https://github.com/login')
             page.fill('input[name="login"]', username)
@@ -475,51 +487,51 @@ def main():
             page.click('input[type="submit"]')
             try:
                 page.wait_for_url('https://github.com/', timeout=15000)
-                print_status("✅ Login successful!", "SUCCESS")
+                print_status("Login successful!", "SUCCESS")
             except Exception:
-                print_status("⚠️ Login may have failed or 2FA is enabled. Please check manually.", "WARNING")
+                print_status("Login may have failed or 2FA is enabled. Please check manually.", "WARNING")
                 input("If you completed login manually, press Enter to continue...")
             save_cookies(context)
         
-        print_status("🚀 Starting secret hunt...", "SCANNING")
+        print_status("Starting secret hunt...", "SCANNING")
         for i, query in enumerate(queries, 1):
             if args.verbose:
-                print_status(f"🔍 Query {i}/{total_queries}: {query}", "SCANNING")
+                print_status(f"Query {i}/{total_queries}: {query}", "SCANNING")
             else:
                 print_progress(i, total_queries, "Queries")
             
             for page_num in range(1, MAX_PAGES + 1):
                 url = f"https://github.com/search?q={requests.utils.quote(query)}&type=code&sort=updated&order=desc&p={page_num}"
                 if args.verbose:
-                    print_status(f"📄 Fetching page {page_num}: {url}", "SCANNING")
+                    print_status(f"Fetching page {page_num}: {url}", "SCANNING")
                 try:
                     page.goto(url, timeout=60000)
                     
                     file_urls = extract_file_urls_from_page(page)
                     if file_urls:
                         if args.verbose:
-                            print_status(f"🎯 Extracted {len(file_urls)} file URLs from search results", "FOUND")
+                            print_status(f"Extracted {len(file_urls)} file URLs from search results", "FOUND")
                         process_files_in_batches(page, file_urls, all_keys, compiled_patterns, args.verbose)
                     else:
                         if args.verbose:
-                            print_status(f"⚠️ No file URLs found on page {page_num}", "WARNING")
+                            print_status(f"No file URLs found on page {page_num}", "WARNING")
 
                 except Exception as e:
-                    print_status(f"❌ Timeout or navigation error: {e}", "ERROR")
+                    print_status(f"Timeout or navigation error: {e}", "ERROR")
                     continue
             time.sleep(2)
     
     total_keys = sum(len(key_list) for key_list in all_keys.values())
-    print_status(f"🎉 Scan complete! Found {total_keys} total keys across {len(all_keys)} pattern types.", "SUCCESS")
+    print_status(f"Scan complete! Found {total_keys} total keys across {len(all_keys)} pattern types.", "SUCCESS")
     
     if all_keys:
-        print_status("📊 Summary by pattern type:", "INFO")
+        print_status("Summary by pattern type:", "INFO")
         for pattern_name, key_list in all_keys.items():
-            print_status(f"  🔑 {pattern_name}: {len(key_list)} keys", "KEY")
+            print_status(f"{pattern_name}: {len(key_list)} keys", "KEY")
     
     save_results_to_json(all_keys, KEYS_FILE)
-    print_status(f"💾 Results saved to: {os.path.abspath(KEYS_FILE)}", "SUCCESS")
-    print_status("🎯 Secret hunting session completed! 🎯", "SUCCESS")
+    print_status(f"Results saved to: {os.path.abspath(KEYS_FILE)}", "SUCCESS")
+    print_status("Secret hunting session completed!", "SUCCESS")
     browser.close()
 
 if __name__ == '__main__':

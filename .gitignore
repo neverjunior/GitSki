@@ -1,6 +1,6 @@
 # Configuration files with credentials
 config_github.json
-cookie.txt
+cookie.txt 
 
 # Output files
 keys.json

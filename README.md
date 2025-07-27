@@ -300,7 +300,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/gitski&type=Date)](https://star-history.com/#yourusername/gitski&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=neverjunior/gitski&type=Date)](https://star-history.com/#neverjunior/gitski&Date)
 
 ---
 

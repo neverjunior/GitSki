@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 import requests
 import json
 
-CONFIG_FILE = 'config_github.json'
+CONFIG_FILE = '../config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
 KEYS_FILE = 'keys.txt'
@@ -204,7 +204,7 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
                 print_status(f"Visiting file: {file_url}", "SCANNING")
             page.goto(file_url, timeout=30000)
             
-            if "rate limit" in page.content().lower():
+            if "Too Many Requests" in page.content().lower():
                 wait_time = (2 ** attempt) * 5
                 if verbose:
                     print_status(f"Rate limited, waiting {wait_time} seconds...", "WAITING")

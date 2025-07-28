@@ -202,12 +202,17 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
         try:
             if verbose:
                 print_status(f"Visiting file: {file_url}", "SCANNING")
-            page.goto(file_url, timeout=30000)
+            response = page.goto(file_url, timeout=30000)
             
-            if "Too Many Requests" in page.content().lower():
-                wait_time = (2 ** attempt) * 5
+            if response.status == 429:
+                if attempt == 0:
+                    wait_time = 5
+                elif attempt == 1:
+                    wait_time = 15
+                else:
+                    wait_time = 60
                 if verbose:
-                    print_status(f"Rate limited, waiting {wait_time} seconds...", "WAITING")
+                    print_status(f"Rate limited (429), waiting {wait_time} seconds...", "WAITING")
                 time.sleep(wait_time)
                 continue
             

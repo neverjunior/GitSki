@@ -12,7 +12,7 @@
 ║ ╚██████╔╝██║   ██║   ███████║██║  ██╗██║    ║      - by Abhijeet        ║    ║
 ║  ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝    ╚═══════════════════════════╝    ║
 ║                                                                              ║
-║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║ 
+║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -31,8 +31,6 @@
 ### 🎯 **Advanced Targeting**
 - **Repository-specific scanning** - Target specific repos, organizations, or users
 - **String-based filtering** - Search for specific domains, companies, or keywords
-- **Language filtering** - Focus on specific programming languages
-- **Metadata filtering** - Filter by stars, forks, size, and dates
 
 ### 🔍 **Intelligent Detection**
 - **40+ secret patterns** - Comprehensive regex patterns for various API keys
@@ -47,12 +45,13 @@
 - **Cookie persistence** - Automated login with session management
 
 ### 🎨 **User Experience**
+- **Progress tracking** - Real-time progress bars and status updates
 - **Verbose logging** - Detailed output for debugging
 - **JSON output** - Structured results with metadata
 
 ### 🔧 **Flexibility**
 - **Custom regex patterns** - Load patterns from JSON configuration
-- **Multiple output formats** - Customizable output filenames
+- **JSON output formats** - JSON output
 - **Configurable limits** - Adjustable page limits and batch sizes
 - **Cross-platform** - Works on Windows, macOS, and Linux
 
@@ -90,10 +89,9 @@
 ║ ╚██████╔╝██║   ██║   ███████║██║  ██╗██║    ║      - by Abhijeet        ║    ║
 ║  ╚═════╝ ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝    ╚═══════════════════════════╝    ║
 ║                                                                              ║
-║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║ 
+║  🚀 Find Exposed API Keys • 🔐 Detect Secrets • 🎯 Target Specific Repos   ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-"""
 
 🎯 Initializing GitSki Secret Scanner...
 ⚡ Loading advanced detection patterns...
@@ -111,7 +109,7 @@
 🔐 Attempting automated GitHub login...
 ✅ Login successful!
 🚀 Starting secret hunt...
-🔍 Query 1/520: (path:*.json) AND (api_key) AND (/sk-[a-zA-Z0-9]{48}/)
+🔍 Query 1/520: (path:*.json) AND (api_key) AND (/[a-zA-Z0-9]{48}/)
 📄 Fetching page 1: https://github.com/search?q=...
 🎯 Extracted 15 file URLs from search results
 📦 Processing batch 1/1 (15 files)
@@ -155,8 +153,8 @@ playwright install chromium
 ```
 
 4. **Configure GitHub credentials**
-```
- Edit config_github.json with your GitHub credentials
+```bash
+Edit config_github.json with your GitHub credentials
 ```
 
 ### 🎯 Basic Usage
@@ -196,27 +194,9 @@ python gitski.py --user "neverjunior"
 # Search for specific string/domain
 python gitski.py --string "example.com"
 
-# Search in specific programming language
-python gitski.py --language "python"
-
-# Filter by repository size
-python gitski.py --size ">1000"
-
-# Filter by stars
-python gitski.py --stars ">100"
-
-# Filter by forks
-python gitski.py --forks ">10"
-
-# Filter by creation date
-python gitski.py --created ">2023-01-01"
-
-# Filter by last push date
-python gitski.py --pushed ">2024-01-01"
-
 # Combined filters
 python gitski.py --repo "microsoft/vscode" --string "api_key" --verbose
-python gitski.py --org "google" --language "javascript" --stars ">1000"
+python gitski.py --org "google" --string "password"
 ```
 
 ---
@@ -239,7 +219,7 @@ python gitski.py --verbose
 python gitski.py --output my_results.json
 
 # Custom number of pages per query
-python gitski.py --max-pages 10
+python gitski.py --max-pages 3
 
 # Combined options
 python gitski.py --headless --verbose --output results.json
@@ -260,27 +240,9 @@ python gitski.py --user "neverjunior"
 # Search for specific string/domain
 python gitski.py --string "example.com"
 
-# Search in specific programming language
-python gitski.py --language "python"
-
-# Filter by repository size
-python gitski.py --size ">1000"
-
-# Filter by stars
-python gitski.py --stars ">100"
-
-# Filter by forks
-python gitski.py --forks ">10"
-
-# Filter by creation date
-python gitski.py --created ">2023-01-01"
-
-# Filter by last push date
-python gitski.py --pushed ">2024-01-01"
-
 # Combined filters
 python gitski.py --repo "microsoft/vscode" --string "api_key" --verbose
-python gitski.py --org "google" --language "javascript" --stars ">1000"
+python gitski.py --org "google" --string "example.com"
 ```
 
 ### Command Line Options
@@ -295,12 +257,6 @@ python gitski.py --org "google" --language "javascript" --stars ">1000"
 | `--org` | Search in specific organization | `None` |
 | `--user` | Search in specific user's repositories | `None` |
 | `--string` | Search for specific string/domain | `None` |
-| `--language` | Filter by programming language | `None` |
-| `--size` | Filter by repository size (e.g., >1000) | `None` |
-| `--stars` | Filter by stars (e.g., >100) | `None` |
-| `--forks` | Filter by forks (e.g., >10) | `None` |
-| `--created` | Filter by creation date (e.g., >2023-01-01) | `None` |
-| `--pushed` | Filter by last push date (e.g., >2024-01-01) | `None` |
 
 ### Configuration Files
 
@@ -350,7 +306,7 @@ GitSki automatically generates search queries based on:
 
 ### GitHub Search Filters
 
-GitSki supports all GitHub search filters for precise targeting:
+GitSki supports GitHub search filters for precise targeting:
 
 #### **Repository & Organization Filters**
 - `--repo "owner/repo"` - Search in specific repository
@@ -359,27 +315,16 @@ GitSki supports all GitHub search filters for precise targeting:
 
 #### **Content Filters**
 - `--string "text"` - Search for specific text/domain/company
-- `--language "python"` - Filter by programming language
-
-#### **Repository Metadata Filters**
-- `--size ">1000"` - Filter by repository size
-- `--stars ">100"` - Filter by star count
-- `--forks ">10"` - Filter by fork count
-- `--created ">2023-01-01"` - Filter by creation date
-- `--pushed ">2024-01-01"` - Filter by last push date
 
 #### **Usage Examples**
 ```bash
 # Target specific company repositories
 python gitski.py --org "microsoft" --string "api_key"
 
-# Search in popular repositories
-python gitski.py --stars ">1000" --language "javascript"
+# Search in specific repository
+python gitski.py --repo "microsoft/vscode" --string "password"
 
-# Focus on recent activity
-python gitski.py --pushed ">2024-01-01" --string "password"
-
-# Target specific domain
+# Focus on specific domain
 python gitski.py --string "example.com" --verbose
 ```
 

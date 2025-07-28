@@ -5,11 +5,6 @@
     "description": "OpenAI API key"
   },
   {
-    "name": "AWS Secret Access Key",
-    "pattern": "(?i)((\"|'|`)?aws_?secret_?access_?key_?id?(\"|'|`)?\\s{0,50}(:|=>|=)\\s{0,50}(\"|'|`)?[A-Za-z0-9/+=]{40}(\"|'|`)?)",
-    "description": "AWS Secret Access Key with variable names"
-  },
-  {
     "name": "Artifactory",
     "pattern": "(?i)artifactory.{0,50}(\"|'|`)?[a-zA-Z0-9=]{112}(\"|'|`)?",
     "description": "Artifactory API keys"
@@ -113,11 +108,6 @@
     "name": "Slack Token",
     "pattern": "(xox[pboa]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})",
     "description": "Slack API tokens"
-  },
-  {
-    "name": "Slack Webhook",
-    "pattern": "https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}",
-    "description": "Slack webhook URLs"
   },
   {
     "name": "SonarQube API Key",

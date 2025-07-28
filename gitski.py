@@ -9,7 +9,7 @@ import json
 CONFIG_FILE = 'config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
-KEYS_FILE = 'keys.json'
+KEYS_FILE = 'keys.txt'
 MAX_PAGES = 5 
 
 BANNER = """
@@ -121,18 +121,6 @@ def generate_queries(args, compiled_patterns):
         base_filters.append(f"user:{args.user}")
     if args.string:
         base_filters.append(f'"{args.string}"')
-    if args.language:
-        base_filters.append(f"language:{args.language}")
-    if args.size:
-        base_filters.append(f"size:{args.size}")
-    if args.stars:
-        base_filters.append(f"stars:{args.stars}")
-    if args.forks:
-        base_filters.append(f"forks:{args.forks}")
-    if args.created:
-        base_filters.append(f"created:{args.created}")
-    if args.pushed:
-        base_filters.append(f"pushed:{args.pushed}")
     
     base_filter_string = " ".join(base_filters) if base_filters else ""
     
@@ -429,18 +417,6 @@ def main():
                        help='Search only in specific user\'s repositories')
     parser.add_argument('--string', type=str, default=None,
                        help='Search for specific string (domain, company, etc.)')
-    parser.add_argument('--language', type=str, default=None,
-                       help='Filter by programming language')
-    parser.add_argument('--size', type=str, default=None,
-                       help='Filter by repository size (e.g., >1000, <100)')
-    parser.add_argument('--stars', type=str, default=None,
-                       help='Filter by stars (e.g., >100, <1000)')
-    parser.add_argument('--forks', type=str, default=None,
-                       help='Filter by forks (e.g., >10, <100)')
-    parser.add_argument('--created', type=str, default=None,
-                       help='Filter by creation date (e.g., >2023-01-01)')
-    parser.add_argument('--pushed', type=str, default=None,
-                       help='Filter by last push date (e.g., >2024-01-01)')
     args = parser.parse_args()
     
     global MAX_PAGES, KEYS_FILE
@@ -461,8 +437,6 @@ def main():
         print_status(f"User target: {args.user}", "FOUND")
     if args.string:
         print_status(f"String target: {args.string}", "SCANNING")
-    if args.language:
-        print_status(f"Language filter: {args.language}", "INFO")
     
     patterns = load_regex_patterns()
     compiled_patterns = compile_regex_patterns(patterns)

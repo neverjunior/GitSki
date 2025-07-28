@@ -9,7 +9,7 @@ import json
 CONFIG_FILE = 'config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
-KEYS_FILE = 'keys.txt'
+KEYS_FILE = 'keys.json'
 MAX_PAGES = 5 
 
 BANNER = """
@@ -59,7 +59,15 @@ def print_progress(current, total, prefix="Progress"):
     percentage = current / total * 100
     print(f"\r{prefix}: |{bar}| {percentage:.1f}% ({current}/{total})", end='', flush=True)
     if current == total:
-        print()
+        print()  # Final newline when complete
+
+def print_page_file_progress(page_num, max_pages, file_num, total_files, query_num, total_queries):
+    page_percentage = (page_num / max_pages) * 100
+    file_percentage = (file_num / total_files) * 100 if total_files > 0 else 0
+    
+    # Clear the line and print progress using ANSI escape codes
+    print(f"\r\033[K", end='', flush=True)  # Clear line from cursor to end
+    print(f"Query {query_num}/{total_queries} | Page {page_num}/{max_pages} ({page_percentage:.1f}%) | File {file_num}/{total_files} ({file_percentage:.1f}%)", end='', flush=True)
 
 EXTENSIONS = [
     'json', 'xml', 'properties', 'sql', 'txt', 'log', 'tmp', 'backup', 'bak', 'enc',
@@ -140,11 +148,17 @@ def generate_queries(args, compiled_patterns):
 
 def load_cookies(context):
     if not os.path.exists(COOKIE_FILE):
-        print(f"[INFO] '{COOKIE_FILE}' not found. You will need to log in manually in the browser window.")
+        print_status(f"Cookie file '{COOKIE_FILE}' not found", "INFO")
         return False
+    
     try:
         with open(COOKIE_FILE, 'r') as f:
             cookie_str = f.read().strip()
+        
+        if not cookie_str:
+            print_status(f"Cookie file '{COOKIE_FILE}' is empty", "WARNING")
+            return False
+        
         cookies = []
         for pair in cookie_str.split(';'):
             if '=' in pair:
@@ -158,19 +172,38 @@ def load_cookies(context):
                     'secure': True,
                     'sameSite': 'Lax',
                 })
+        
+        if not cookies:
+            print_status(f"No valid cookies found in '{COOKIE_FILE}'", "WARNING")
+            return False
+        
         context.add_cookies(cookies)
-        print(f"[INFO] Loaded cookies from '{COOKIE_FILE}'.")
+        print_status(f"Loaded {len(cookies)} cookies from '{COOKIE_FILE}'", "SUCCESS")
         return True
     except Exception as e:
-        print(f"[WARNING] Could not load cookies: {e}")
+        print_status(f"Could not load cookies: {e}", "ERROR")
         return False
+
+def check_and_handle_unicorn(page, verbose=False, context="page"):
+    """Check for Unicorn error page and handle it"""
+    try:
+        page_title = page.title()
+        if "Unicorn" in page_title:
+            if verbose:
+                print_status(f"Detected Unicorn error page during {context}, refreshing...", "WARNING")
+            page.reload()
+            time.sleep(5)  # Wait for page to reload
+            return True
+    except Exception:
+        pass
+    return False
 
 def save_cookies(context):
     cookies = context.cookies()
     cookie_str = '; '.join([f"{c['name']}={c['value']}" for c in cookies if c['domain'].endswith('github.com')])
     with open(COOKIE_FILE, 'w') as f:
         f.write(cookie_str)
-    print(f"[INFO] Saved cookies to '{COOKIE_FILE}'.")
+    # Removed print statement to avoid interfering with progress display
 
 def get_github_credentials():
     if not os.path.exists(CONFIG_FILE):
@@ -186,6 +219,9 @@ def get_github_credentials():
 def extract_file_urls_from_page(page):
     file_urls = []
     try:
+        if check_and_handle_unicorn(page, verbose=False, context="URL extraction"):
+            return []
+        
         file_links = page.query_selector_all('a[data-testid="link-to-search-result"]')
         for link in file_links:
             href = link.get_attribute('href')
@@ -194,7 +230,8 @@ def extract_file_urls_from_page(page):
                     href = 'https://github.com' + href
                 file_urls.append(href)
     except Exception as e:
-        print(f"    [WARNING] Error extracting file URLs: {e}")
+        # Only print in verbose mode to avoid interfering with progress display
+        pass
     return file_urls
 
 def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, verbose=False, max_retries=3):
@@ -204,17 +241,33 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
                 print_status(f"Visiting file: {file_url}", "SCANNING")
             response = page.goto(file_url, timeout=30000)
             
+            # Check for Unicorn error page
+            if check_and_handle_unicorn(page, verbose=verbose, context="file visit"):
+                continue
+            
             if response.status == 429:
-                if attempt == 0:
-                    wait_time = 5
-                elif attempt == 1:
-                    wait_time = 15
-                else:
-                    wait_time = 60
+                wait_time = 30 if attempt == 0 else 60 if attempt == 1 else 180
                 if verbose:
                     print_status(f"Rate limited (429), waiting {wait_time} seconds...", "WAITING")
                 time.sleep(wait_time)
                 continue
+            
+            if response.status != 200:
+                if verbose:
+                    print_status(f"Unexpected status code: {response.status}", "ERROR")
+                if attempt < max_retries - 1:
+                    wait_time = 30 if attempt == 0 else 60
+                    if verbose:
+                        print_status(f"Retrying in {wait_time} seconds...", "WAITING")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    if verbose:
+                        print_status(f"Failed after {max_retries} attempts", "ERROR")
+                    with open('skipped.txt', 'a') as f:
+                        f.write(f"FILE: {file_url}\n")
+                    print_status(f"Added file to skipped.txt", "WARNING")
+                    return False
             
             file_content = page.content()
             keys = extract_keys_from_code(file_content, compiled_patterns, file_url, verbose)
@@ -245,7 +298,8 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
             
             if new_keys_count > 0:
                 summary_text = ", ".join(new_keys_summary)
-                print_status(f"Found {new_keys_count} new keys in file: {summary_text}", "FOUND")
+                if verbose:
+                    print_status(f"Found {new_keys_count} new keys in file: {summary_text}", "FOUND")
                 save_results_to_json(all_keys, KEYS_FILE)
             else:
                 if verbose:
@@ -255,18 +309,22 @@ def visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, ver
             
         except Exception as e:
             if verbose:
-                print_status(f"Error visiting file (attempt {attempt + 1}/{max_retries}): {e}", "ERROR")
+                print_status(f"Error on attempt {attempt + 1}: {e}", "ERROR")
             if attempt < max_retries - 1:
-                wait_time = (2 ** attempt) * 3
+                wait_time = 30 if attempt == 0 else 60
                 if verbose:
                     print_status(f"Retrying in {wait_time} seconds...", "WAITING")
                 time.sleep(wait_time)
     
     if verbose:
         print_status(f"Failed to visit file after {max_retries} attempts", "ERROR")
+    with open('skipped.txt', 'a') as f:
+        f.write(f"FILE: {file_url}\n")
+    if verbose:
+        print_status(f"Added file to skipped.txt", "WARNING")
     return False
 
-def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbose=False, batch_size=20):
+def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbose=False, batch_size=20, query_num=1, total_queries=1, page_num=1, max_pages=5):
     total_files = len(file_urls)
     if verbose:
         print_status(f"Found {total_files} files to process", "FOUND")
@@ -283,7 +341,10 @@ def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbo
             if verbose:
                 print_status(f"File {i + j + 1}/{total_files}", "SCANNING")
             else:
-                print_progress(i + j + 1, total_files, "Files")
+                # Update file progress on the same line without creating new line
+                file_percentage = ((i + j + 1) / total_files) * 100
+                print(f"\r\033[K", end='', flush=True)  # Clear line from cursor to end
+                print(f"Query {query_num}/{total_queries} | Page {page_num}/{max_pages} ({(page_num/max_pages)*100:.1f}%) | File {i + j + 1}/{total_files} ({file_percentage:.1f}%)", end='', flush=True)
             visit_file_and_extract_keys(page, file_url, all_keys, compiled_patterns, verbose)
             
             if j < len(batch) - 1:
@@ -294,6 +355,8 @@ def process_files_in_batches(page, file_urls, all_keys, compiled_patterns, verbo
             if verbose:
                 print_status(f"Batch {batch_num} complete. Taking a 10-second break...", "WAITING")
             time.sleep(10)
+    
+    # No newline after file processing to keep progress on same line
 
 def extract_keys_from_code(code, compiled_patterns, file_url="", verbose=False):
     all_keys = {}
@@ -457,47 +520,110 @@ def main():
         context = browser.new_context()
         cookies_loaded = load_cookies(context)
         page = context.new_page()
+        
         if not cookies_loaded:
-            print_status("Attempting automated GitHub login...", "LOGIN")
-            username, password = get_github_credentials()
-            page.goto('https://github.com/login')
-            page.fill('input[name="login"]', username)
-            page.fill('input[name="password"]', password)
-            page.click('input[type="submit"]')
+            print_status("No valid cookies found. Attempting automated GitHub login...", "LOGIN")
             try:
-                page.wait_for_url('https://github.com/', timeout=15000)
-                print_status("Login successful!", "SUCCESS")
-            except Exception:
-                print_status("Login may have failed or 2FA is enabled. Please check manually.", "WARNING")
-                input("If you completed login manually, press Enter to continue...")
-            save_cookies(context)
+                username, password = get_github_credentials()
+                print_status("Credentials loaded successfully", "SUCCESS")
+                
+                page.goto('https://github.com/login', timeout=30000)
+                
+                # Check for Unicorn error page during login
+                if check_and_handle_unicorn(page, verbose=True, context="login"):
+                    page.goto('https://github.com/login', timeout=30000)
+                
+                print_status("Navigated to GitHub login page", "LOGIN")
+                
+                page.fill('input[name="login"]', username)
+                page.fill('input[name="password"]', password)
+                page.click('input[type="submit"]')
+                print_status("Login form submitted", "LOGIN")
+                
+                try:
+                    page.wait_for_url('https://github.com/', timeout=15000)
+                    print_status("Login successful!", "SUCCESS")
+                    save_cookies(context)
+                except Exception as e:
+                    print_status(f"Login timeout or 2FA required: {e}", "WARNING")
+                    print_status("Please complete login manually in the browser window", "WARNING")
+                    input("Press Enter after completing login...")
+                    save_cookies(context)
+            except Exception as e:
+                print_status(f"Login failed: {e}", "ERROR")
+                print_status("Please check your config_github.json file", "ERROR")
+                return
+        else:
+            print_status("Using saved session cookies", "SUCCESS")
         
         print_status("Starting secret hunt...", "SCANNING")
         for i, query in enumerate(queries, 1):
             if args.verbose:
                 print_status(f"Query {i}/{total_queries}: {query}", "SCANNING")
-            else:
-                print_progress(i, total_queries, "Queries")
             
             for page_num in range(1, MAX_PAGES + 1):
                 url = f"https://github.com/search?q={requests.utils.quote(query)}&type=code&sort=updated&order=desc&p={page_num}"
                 if args.verbose:
                     print_status(f"Fetching page {page_num}: {url}", "SCANNING")
-                try:
-                    page.goto(url, timeout=60000)
-                    
-                    file_urls = extract_file_urls_from_page(page)
-                    if file_urls:
-                        if args.verbose:
-                            print_status(f"Extracted {len(file_urls)} file URLs from search results", "FOUND")
-                        process_files_in_batches(page, file_urls, all_keys, compiled_patterns, args.verbose)
-                    else:
-                        if args.verbose:
-                            print_status(f"No file URLs found on page {page_num}", "WARNING")
+                
+                search_success = False
+                no_results_found = False
+                for search_attempt in range(3):
+                    try:
+                        response = page.goto(url, timeout=30000)
+                        
+                        # Check for Unicorn error page
+                        if check_and_handle_unicorn(page, verbose=args.verbose, context="search"):
+                            continue
+                        
+                        if response.status == 429:
+                            wait_time = 30 if search_attempt == 0 else 60 if search_attempt == 1 else 180
+                            print_status(f"Search rate limited (429), waiting {wait_time} seconds...", "WAITING")
+                            time.sleep(wait_time)
+                            continue
+                        
+                        if response.status != 200:
+                            print_status(f"Unexpected status code: {response.status}", "ERROR")
+                            if search_attempt < 2:
+                                wait_time = 30 if search_attempt == 0 else 60
+                                print_status(f"Retrying in {wait_time} seconds...", "WAITING")
+                                time.sleep(wait_time)
+                                continue
+                            else:
+                                print_status(f"Failed after 3 attempts with status {response.status}, skipping page {page_num}", "ERROR")
+                                break
+                        
+                        file_urls = extract_file_urls_from_page(page)
+                        if file_urls:
+                            if args.verbose:
+                                print_status(f"Extracted {len(file_urls)} file URLs from search results", "FOUND")
+                            else:
+                                if page_num == 1:  # Only show progress line once per query
+                                    print_page_file_progress(page_num, MAX_PAGES, 0, len(file_urls), i, total_queries)
+                            process_files_in_batches(page, file_urls, all_keys, compiled_patterns, args.verbose, 20, i, total_queries, page_num, MAX_PAGES)
+                            search_success = True
+                            break
+                        else:
+                            if args.verbose:
+                                print_status(f"No file URLs found on page {page_num}", "WARNING")
+                            no_results_found = True
+                            break
 
-                except Exception as e:
-                    print_status(f"Timeout or navigation error: {e}", "ERROR")
-                    continue
+                    except Exception as e:
+                        print_status(f"Error on attempt {search_attempt + 1}: {e}", "ERROR")
+                        if search_attempt < 2:
+                            wait_time = 30 if search_attempt == 0 else 60
+                            print_status(f"Retrying in {wait_time} seconds...", "WAITING")
+                            time.sleep(wait_time)
+                        else:
+                            print_status(f"Failed after 3 attempts due to error: {e}", "ERROR")
+                            break
+                
+                if not search_success and not no_results_found:
+                    print_status(f"Search page failed after all retries", "ERROR")
+                
+                if no_results_found:
+                    break
             time.sleep(2)
     
     total_keys = sum(len(key_list) for key_list in all_keys.values())

@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 import requests
 import json
 
-CONFIG_FILE = '../config_github.json'
+CONFIG_FILE = 'config_github.json'
 REGEX_CONFIG_FILE = 'regex_patterns.json'
 COOKIE_FILE = 'cookie.txt'
 KEYS_FILE = 'keys.txt'

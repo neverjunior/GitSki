@@ -407,9 +407,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## ⭐ Star History
+## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=neverjunior/gitski&type=Date)](https://star-history.com/#neverjunior/gitski&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=neverjunior/gitski&type=Date)](https://www.star-history.com/#neverjunior/gitski&Date)
 
 ---
 
